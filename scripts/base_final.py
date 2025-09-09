@@ -41,4 +41,28 @@ df_final = df_desmat[["year", "city", "quantidade_total_uc", "area_total_desmat"
 # Salvar resultado
 df_final.to_csv("bases finais/base_final.csv", index=False)
 
+"""
+--- Adicionar mesorregião ---
+"""
+# Carregar cidades_mesoregiao.csv
+df_meso = pd.read_csv("raw bases/cidades_mesoregiao.csv", sep=";")
+
+# Normalizar nomes das cidades para garantir correspondência
+df_final["city"] = df_final["city"].apply(normalize_city)
+df_final["city"] = df_final["city"].str.replace("-", " ").str.replace("'", " ")
+df_final["city"] = df_final["city"].str.strip()
+
+df_meso["CIDADE"] = df_meso["CIDADE"].apply(normalize_city)
+df_meso["CIDADE"] = df_meso["CIDADE"].str.replace("-", " ").str.replace("'", " ")
+df_meso["CIDADE"] = df_meso["CIDADE"].str.strip()
+
+# Fazer merge para adicionar a mesorregião
+df_final = df_final.merge(df_meso, left_on="city", right_on="CIDADE", how="left")
+
+# Selecionar colunas finais (remover coluna CIDADE duplicada)
+df_final = df_final[["year", "city", "MESOREGIAO", "quantidade_total_uc", "area_total_desmat"]]
+
+# Salvar resultado
+df_final.to_csv("bases finais/base_final.csv", index=False)
+
 print(df_final.head())
